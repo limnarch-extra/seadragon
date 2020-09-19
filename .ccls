@@ -1,0 +1,8 @@
+/usr/lib/llvm/10/bin/clang
+-std=c11
+-Ilib
+-Isrc
+-Wall
+-Wextra
+-pedantic
+
