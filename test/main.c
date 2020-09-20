@@ -29,7 +29,7 @@ static int num_digits(uint32_t n)
 
 TEST(lexer)
 {
-	static const char src[] = "fn main ret end";
+	static const char src[] = "fn main return end";
 	static seadragon_token_kind_t kinds[] = {
 		SEADRAGON_TK_FN, SEADRAGON_TK_IDENT, SEADRAGON_TK_RETURN, SEADRAGON_TK_END, SEADRAGON_TK_EOF,
 	};
