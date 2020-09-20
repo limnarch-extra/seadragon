@@ -46,6 +46,12 @@ TEST(lexer)
 		ASSERT_EQ_STR(seadragon_token_kind_tostr_DBG(token.kind), seadragon_token_kind_tostr_DBG(kinds[i]));
 		if(token.kind == SEADRAGON_TK_EOF)
 			break;
+	}
+	for(size_t i = 0;; i += 1)
+	{
+		seadragon_token_t token = seadragon_lexer_next(&lexer, SEADRAGON_LEXER_CATEGORY_PARSER);
+		if(token.kind == SEADRAGON_TK_EOF)
+			break;
 		if(pline != token.range.head.line)  // if we had a newline
 		{
 			if(pline != (uint32_t)-1)

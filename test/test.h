@@ -88,6 +88,8 @@ static void test_handle_result_(void)
     const char* bcolor;
     const char* dcolor;
     const char* word;
+    if(TEST_results.context.file || TEST_results.context.line)
+        printf("%s:%d: error: " TEST_COLOR(0), TEST_results.context.file ? TEST_results.context.file : "?", TEST_results.context.line);
     switch(TEST_results.status)
     {
     case 'P': bcolor = TEST_COLOR(92); dcolor = TEST_COLOR(32); word = "PASS"; ++TEST_results.stats.pass; break;
@@ -97,8 +99,6 @@ static void test_handle_result_(void)
     default: bcolor = dcolor = ""; word = "??" "??"; ++TEST_results.stats.unknown; break;
     }
     printf("%s%s%s: %s" TEST_COLOR(0), bcolor, word, dcolor, TEST_results.name);
-    if(TEST_results.context.file || TEST_results.context.line)
-        printf(TEST_COLOR(90) " @ %s:%d" TEST_COLOR(0), TEST_results.context.file ? TEST_results.context.file : "?", TEST_results.context.line);
     putchar('\n');
     if(TEST_results.error[0])
     {
