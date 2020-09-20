@@ -14,25 +14,14 @@ seadragon_lexer_t* seadragon_lexer_init(seadragon_lexer_t* lexer, const char* fn
 	if(!lexer) return NULL;
 	size_t fnlen = strlen(fname);
 	char* buf = malloc(fnlen + 1 + srclen + 1); // so that we allocate both in 1 alloc
+	if (!buf) return NULL;
 	lexer->fname = buf;
 	memcpy(lexer->fname, fname, fnlen + 1);
 
 	lexer->src = &buf[fnlen + 1];
 	lexer->offset = (size_t)-1; // this signifies first iteration
-	lexer->srclen = 0;
-	// yeah, preprocessing; this is *HORRIBLE*, but I can do it properly later
-	for(size_t i = 0; i < srclen; i++)
-	{
-		if(src[i] == '\r')
-		{
-			lexer->src[lexer->srclen++] = '\n';
-			if(i + 1 < srclen && src[i+1] == '\n')
-				++i;	// jump over another i, to get over the LF of CRLF
-		}
-		else
-			lexer->src[lexer->srclen++] = src[i];
-	}
-	lexer->src[lexer->srclen] = 0; // not technically necessary, but just for defense in depth
+	lexer->srclen = srclen;
+	strncpy(lexer->src, src, srclen);
 
 	lexer->pos = (seadragon_source_pos_t){.line=0, .col=0};
 
@@ -168,7 +157,7 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 					break;
 			}
 			seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_IDENT, i);
-			if(SEADRAGON_LEXER_ISKEYWORD_(lexer, "ret"))
+			if(SEADRAGON_LEXER_ISKEYWORD_(lexer, "return"))
 				lexer->token.kind = SEADRAGON_TK_RETURN;
 			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "if"))
 				lexer->token.kind = SEADRAGON_TK_IF;
