@@ -115,11 +115,20 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 		case '+': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_ADD, 1);
 		case '<': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_CLT, 1);
 		case '>': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_CGT, 1);
-		case '-': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_SUB, 1);
+		case '-': {
+			c = seadragon_lexer_peekc_(lexer, 1);
+			if (c == '-') {
+				return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_DDASH, 2);
+			}
+			return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_SUB, 1);
+		}
 		case '*': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_MUL, 1);
 		case '/': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_DIV, 1);
 		case '(': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_LPAREN, 1);
 		case ')': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_RPAREN, 1);
+		case '{': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_LBRACE, 1);
+		case '}': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_RBRACE, 1);
+		case '!': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_EXCLAIM, 1);
 		case '\n': case '\t': case ' ':
 			for(i = 1;; i++)
 			{

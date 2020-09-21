@@ -24,24 +24,29 @@ typedef struct seadragon_source_range
     ITEM(CGT),            \
     ITEM(CLT),            \
     \
-    ITEM(LPAREN),           \
-    ITEM(RPAREN),           \
+    ITEM(LPAREN),         \
+    ITEM(RPAREN),         \
+    ITEM(LBRACE),         \
+    ITEM(RBRACE),         \
     \
-    ITEM(INTEGER),          \
-    ITEM(IDENT),            \
-    ITEM(FN),                \
-    ITEM(END),                \
-    ITEM(IF),               \
-    ITEM(RETURN),           \
-    ITEM(WHILE),            \
-    ITEM(BUFFER),           \
-    ITEM(VAR),              \
-    ITEM(AUTO),             \
+    ITEM(EXCLAIM),        \
+    ITEM(DDASH),          \
     \
-    ITEMI(WSPACE),          \
+    ITEM(INTEGER),        \
+    ITEM(IDENT),          \
+    ITEM(FN),             \
+    ITEM(END),            \
+    ITEM(IF),             \
+    ITEM(RETURN),         \
+    ITEM(WHILE),          \
+    ITEM(BUFFER),         \
+    ITEM(VAR),            \
+    ITEM(AUTO),           \
+    \
+    ITEMI(WSPACE),        \
     ITEMI(COMMENT),       \
     \
-    ITEM(ERROR)VAL(0xFF)    \
+    ITEM(ERROR)VAL(0xFF)  \
     VLAST(0xFF)
 
 typedef enum seadragon_token_kind
