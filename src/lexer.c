@@ -88,10 +88,6 @@ seadragon_token_t seadragon_lexer_mktoken_(seadragon_lexer_t* lexer, seadragon_t
 
 #define SEADRAGON_LEXER_ISKEYWORD_(lexer, keyword) ((lexer)->token.len == strlen(keyword) && !memcmp((lexer)->token.ptr, keyword, strlen(keyword)))
 
-const char *types[] = {
-	"int", "uint", "u32"
-};
-
 seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t categories)
 {
 	//if(!categories) categories = SEADRAGON_LEXER_CATEGORY_PARSER;
