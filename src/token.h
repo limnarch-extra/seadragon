@@ -75,6 +75,8 @@ void seadragon_dumpstr_escaped_DBG(const char* str, size_t len);
 void seadragon_token_dump_DBG(const seadragon_token_t* token);
 void seadragon_token_dump_simple_DBG(const seadragon_token_t* token, int color);
 const char* seadragon_token_kind_tostr_DBG(seadragon_token_kind_t kind);
+
 char *seadragon_token_read(seadragon_token_t token);
+uint64_t seadragon_token_read_number(seadragon_token_t token);
 
 #endif /* SEADRAGON_TOKEN_H_ */

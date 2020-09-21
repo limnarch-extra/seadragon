@@ -71,3 +71,14 @@ char *seadragon_token_read(seadragon_token_t token)
     buf[token.len] = 0;
     return buf;
 }
+
+uint64_t seadragon_token_read_number(seadragon_token_t token) {
+	char *buf = seadragon_token_read(token);
+	char *ret;
+	unsigned long result = strtoul(buf, &ret, 10);
+	if (ret != buf + token.len) {
+		return UINT64_MAX;
+	}
+	free(buf);
+	return result;
+}
