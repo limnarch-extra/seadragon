@@ -1,4 +1,8 @@
 #include "lexer.h"
+#include "parser.h"
+
+#define TEST_USE_COLOR 0
+
 #include "test.h"
 
 #include <stdio.h>
@@ -27,12 +31,14 @@ static int num_digits(uint32_t n)
 	return nd;
 }
 
+static const char src[] = 
+"fn main { -- ret }	\
+	0 ret!		\
+end";
+
+
 TEST(lexer)
 {
-	static const char src[] = "fn main return end";
-	static seadragon_token_kind_t kinds[] = {
-		SEADRAGON_TK_FN, SEADRAGON_TK_IDENT, SEADRAGON_TK_RETURN, SEADRAGON_TK_END, SEADRAGON_TK_EOF,
-	};
 	seadragon_lexer_t lexer;
 	PRECONDITION(seadragon_lexer_init(&lexer, "<src>", src, sizeof(src) - 1));
 
@@ -40,13 +46,6 @@ TEST(lexer)
 	int nlines_ndigits = num_digits(nlines);
 
 	uint32_t pline = (uint32_t)-1;
-	for(size_t i = 0;; i += 1)
-	{
-		seadragon_token_t token = seadragon_lexer_next(&lexer, SEADRAGON_LEXER_CATEGORY_PARSER);
-		ASSERT_EQ_STR(seadragon_token_kind_tostr_DBG(token.kind), seadragon_token_kind_tostr_DBG(kinds[i]));
-		if(token.kind == SEADRAGON_TK_EOF)
-			break;
-	}
 	for(size_t i = 0;; i += 1)
 	{
 		seadragon_token_t token = seadragon_lexer_next(&lexer, SEADRAGON_LEXER_CATEGORY_PARSER);
@@ -73,8 +72,33 @@ TEST(lexer)
 	seadragon_lexer_deinit(&lexer);
 }
 
+TEST(parser) {
+	seadragon_lexer_t lexer;
+	PRECONDITION(seadragon_lexer_init(&lexer, "<src>", src, sizeof(src) - 1));
+	seadragon_parser_ctx_t parser;
+	ASSERT(seadragon_parse(&parser, &lexer));
+	ASSERT_EQ_INT(parser.ast.functions->length, 1);
+	seadragon_function_t *function = parser.ast.functions->items[0];
+	ASSERT(function);
+	char *name = function->outputs->items[0];
+	ASSERT_EQ_STR(name, "ret");
+	ASSERT_EQ_UINT(function->u.instructions->length, 3);
+	seadragon_instruction_t *instruction = function->u.instructions->items[0];
+	ASSERT(instruction);
+	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_PUSH);
+	ASSERT_EQ_UINT(instruction->argument.type, VALUE_TYPE_LITERAL);
+	ASSERT_EQ_UINT(instruction->argument.u.literal, 0);
+	instruction = function->u.instructions->items[1];
+	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_PUSH);
+	ASSERT_EQ_UINT(instruction->argument.type, VALUE_TYPE_IDENTIFIER);
+	ASSERT_EQ_STR(instruction->argument.u.identifier, "ret");
+	instruction = function->u.instructions->items[2];
+	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_STORE);
+}
+
 int main()
 {
 	TEST_EXEC(lexer);
+	TEST_EXEC(parser);
 	return TEST_REPORT();
 }

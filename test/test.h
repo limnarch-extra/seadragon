@@ -1,8 +1,6 @@
 #ifndef TEST_H_
 #define TEST_H_
 
-#define TEST_USE_COLOR 1
-
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
