@@ -28,6 +28,7 @@ seadragon_lexer_t* seadragon_lexer_init(seadragon_lexer_t* lexer, const char* fn
 	lexer->token = (seadragon_token_t){.kind=SEADRAGON_TK_ERROR};
 	return lexer;
 }
+
 void seadragon_lexer_deinit(seadragon_lexer_t* lexer)
 {
 	if(!lexer) return;
@@ -51,11 +52,14 @@ static void seadragon_lexer_advancec_(seadragon_lexer_t* lexer, size_t c)
 	}
 	lexer->offset += c;
 }
+
 static int seadragon_lexer_peekc_(seadragon_lexer_t* lexer, size_t c)
 {
 	c += lexer->offset;
 	return c < lexer->srclen ? (uint8_t)lexer->src[c] : SEADRAGON_LEXER_EOF_;
+	// return current character unless we've reached EOF, in which case return SEADRAGON_LEXER_EOF_ 
 }
+
 static void seadragon_lexer_skip_until_(seadragon_lexer_t* lexer, int until, bool inclusive)
 {
 	size_t i = 0;
@@ -165,6 +169,14 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 				lexer->token.kind = SEADRAGON_TK_FN;
 			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "end"))
 				lexer->token.kind = SEADRAGON_TK_END;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "while"))
+				lexer->token.kind = SEADRAGON_TK_WHILE;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "buffer"))
+				lexer->token.kind = SEADRAGON_TK_BUFFER;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "var"))
+				lexer->token.kind = SEADRAGON_TK_VAR;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "auto"))
+				lexer->token.kind = SEADRAGON_TK_AUTO;
 			return lexer->token;
 		default:
 			fprintf(stderr, "\nlexer error near '%c' (\\x%.2X)\n", c, c);
@@ -174,3 +186,4 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 	}
 	__builtin_trap();
 }
+

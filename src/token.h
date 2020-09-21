@@ -33,6 +33,10 @@ typedef struct seadragon_source_range
     ITEM(END),                \
     ITEM(IF),               \
     ITEM(RETURN),           \
+    ITEM(WHILE),            \
+    ITEM(BUFFER),           \
+    ITEM(VAR),              \
+    ITEM(AUTO),             \
     \
     ITEMI(WSPACE),          \
     ITEMI(COMMENT),       \
