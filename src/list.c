@@ -37,7 +37,17 @@ void list_foreach(list_t *list, void (*callback)(void *item)) {
 
 void list_add(list_t *list, void *item) {
 	list_resize(list);
-	list->items[list->length++] = item;
+	list->items[list->length] = item;
+	list->length += 1;
+}
+
+void *list_pop(list_t *list) {
+	if (list->length == 0) {
+		return NULL;
+	}
+	void *val = list->items[list->length - 1];
+	list->length -= 1;
+	return val;
 }
 
 void list_insert(list_t *list, unsigned int index, void *item) {

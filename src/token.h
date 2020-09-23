@@ -29,19 +29,28 @@ typedef struct seadragon_source_range
     ITEM(LBRACE),         \
     ITEM(RBRACE),         \
     \
-    ITEM(EXCLAIM),        \
+    ITEM(SLONG),        \
+    ITEM(SINT),         \
+    ITEM(SBYTE),        \
+    ITEM(GLONG),         \
+    ITEM(GINT),          \
+    ITEM(GBYTE),         \
     ITEM(DDASH),          \
     \
     ITEM(INTEGER),        \
     ITEM(IDENT),          \
+    \
     ITEM(FN),             \
     ITEM(END),            \
     ITEM(IF),             \
     ITEM(RETURN),         \
     ITEM(WHILE),          \
+    \
     ITEM(BUFFER),         \
     ITEM(VAR),            \
     ITEM(AUTO),           \
+    \
+    ITEM(DROP),           \
     \
     ITEMI(WSPACE),        \
     ITEMI(COMMENT),       \

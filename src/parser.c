@@ -8,14 +8,14 @@
 
 #define ERROR(msg) do { fprintf(stderr, "%s:%d: error: Parser: %s\n", __FILE__, __LINE__, msg); longjmp(env, 1); } while(0);
 
-seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_lexer_t *lexer) {
-	if (!ctx) {
+seadragon_ast_t *seadragon_parse(seadragon_ast_t *ast, seadragon_lexer_t *lexer) {
+	if (!ast) {
 		return NULL;
 	}
 
-	ctx->ast.constants = list_create();
-	ctx->ast.functions = list_create();
-	ctx->ast.structures = list_create();
+	ast->constants = list_create();
+	ast->functions = list_create();
+	ast->structures = list_create();
 
 	list_t *tokens = list_create();
 	jmp_buf env;
@@ -44,7 +44,7 @@ seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_l
 		printf("\n");
 		fflush(stdout);
 
-		// FN IDENT LBRACE RBRACE ... END
+		// FN IDENT LBRACE [IDENT_1...IDENT_N] DDASH [IDENT_1...IDENT_N] RBRACE [INSTRUCTION_1...INSTRUCTION_N] END
 		{
 			unsigned int i = 0;
 			while (i < tokens->length) {
@@ -82,27 +82,41 @@ seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_l
 						token = tokens->items[i];
 						i += 1;
 					}
-					token = tokens->items[i];
-					i += 1;
 					while (token->kind != SEADRAGON_TK_END) {
+						token = tokens->items[i];
+						i += 1;
+						if (token->kind == SEADRAGON_TK_AUTO) {
+							token = tokens->items[i];
+							i += 1;
+							if (token->kind != SEADRAGON_TK_IDENT) {
+								ERROR("Expected identifier after 'auto'");
+							}
+							list_add(function->autos, seadragon_token_read(*token));
+							token = tokens->items[i];
+							i += 1;
+							continue;
+						}
 						seadragon_instruction_t *instruction = malloc(sizeof(seadragon_instruction_t));
+						instruction->argument = NULL;
 						switch (token->kind) {
 						case SEADRAGON_TK_INTEGER:
+							instruction->argument = malloc(sizeof(seadragon_value_t));
 							instruction->type = INSTRUCTION_TYPE_PUSH;
-							instruction->argument.type = VALUE_TYPE_LITERAL;
+							instruction->argument->type = VALUE_TYPE_LITERAL;
 							uint64_t val = seadragon_token_read_number(*token);
 							if (val > UINT32_MAX) {
 								ERROR("Integer literal does not fit into 32 bits");
 							}
-							instruction->argument.u.literal = (uint32_t)val;
+							instruction->argument->u.literal = (uint32_t)val;
 							break;
 						case SEADRAGON_TK_IDENT:
+							instruction->argument = malloc(sizeof(seadragon_value_t));
 							instruction->type = INSTRUCTION_TYPE_PUSH;
-							instruction->argument.type = VALUE_TYPE_IDENTIFIER;
-							instruction->argument.u.identifier = seadragon_token_read(*token);
+							instruction->argument->type = VALUE_TYPE_IDENTIFIER;
+							instruction->argument->u.identifier = seadragon_token_read(*token);
 							break;
-						case SEADRAGON_TK_EXCLAIM:
-							instruction->type = INSTRUCTION_TYPE_STORE;
+						case SEADRAGON_TK_SLONG:
+							instruction->type = INSTRUCTION_TYPE_SLONG;
 							break;
 						default:
 							ERROR("TODO: function instructions");
@@ -111,7 +125,7 @@ seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_l
 						token = tokens->items[i];
 						i += 1;
 					}
-					list_add(ctx->ast.functions, function);
+					list_add(ast->functions, function);
 				}
 				else {
 					ERROR("Unknown pattern");
@@ -124,9 +138,9 @@ seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_l
 			free(tokens->items[i]);
 		}
 		list_free(tokens);
-		list_free(ctx->ast.structures);
-		list_free(ctx->ast.functions);
-		list_free(ctx->ast.constants);
+		list_free(ast->structures);
+		list_free(ast->functions);
+		list_free(ast->constants);
 		return NULL;
 	}
 
@@ -136,6 +150,6 @@ seadragon_parser_ctx_t *seadragon_parse(seadragon_parser_ctx_t *ctx, seadragon_l
 	}
 	list_free(tokens);
 
-	return ctx;
+	return ast;
 }
 

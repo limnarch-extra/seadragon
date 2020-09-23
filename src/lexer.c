@@ -128,7 +128,8 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 		case ')': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_RPAREN, 1);
 		case '{': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_LBRACE, 1);
 		case '}': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_RBRACE, 1);
-		case '!': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_EXCLAIM, 1);
+		case '!': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_SLONG, 1);
+		case '@': return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_GLONG, 1);
 		case '\n': case '\t': case ' ':
 			for(i = 1;; i++)
 			{
@@ -146,19 +147,7 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 				c = seadragon_lexer_peekc_(lexer, i);
 			return seadragon_lexer_mktoken_(lexer, SEADRAGON_TK_INTEGER, i - 1);
 		// ugh ... but at least it's efficient! (I didn't want to cheat with `default`)
-		case '_':
-		case 'A': case 'B': case 'C': case 'D': case 'E':
-		case 'F': case 'G': case 'H': case 'I': case 'J':
-		case 'K': case 'L': case 'M': case 'N': case 'O':
-		case 'P': case 'Q': case 'R': case 'S': case 'T':
-		case 'U': case 'V': case 'W': case 'X': case 'Y':
-		case 'Z':
-		case 'a': case 'b': case 'c': case 'd': case 'e':
-		case 'f': case 'g': case 'h': case 'i': case 'j':
-		case 'k': case 'l': case 'm': case 'n': case 'o':
-		case 'p': case 'q': case 'r': case 's': case 't':
-		case 'u': case 'v': case 'w': case 'x': case 'y':
-		case 'z':
+		default:
 			for(i = 1;; i++)
 			{
 				c = seadragon_lexer_peekc_(lexer, i);
@@ -182,8 +171,18 @@ seadragon_token_t seadragon_lexer_next(seadragon_lexer_t* lexer, uint32_t catego
 				lexer->token.kind = SEADRAGON_TK_VAR;
 			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "auto"))
 				lexer->token.kind = SEADRAGON_TK_AUTO;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "si"))
+				lexer->token.kind = SEADRAGON_TK_SINT;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "sb"))
+				lexer->token.kind = SEADRAGON_TK_SBYTE;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "gi"))
+				lexer->token.kind = SEADRAGON_TK_GINT;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "gb"))
+				lexer->token.kind = SEADRAGON_TK_GBYTE;
+			else if (SEADRAGON_LEXER_ISKEYWORD_(lexer, "drop"))
+				lexer->token.kind = SEADRAGON_TK_DROP;
 			return lexer->token;
-		default:
+
 			fprintf(stderr, "\nlexer error near '%c' (\\x%.2X)\n", c, c);
 			lexer->token.kind = SEADRAGON_TK_ERROR;
 			return lexer->token;

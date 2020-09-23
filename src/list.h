@@ -1,5 +1,5 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef LIST_H_
+#define LIST_H_
 
 typedef struct {
     unsigned int capacity;
@@ -12,5 +12,6 @@ void list_free(list_t *list);
 void list_add(list_t *list, void *item);
 void list_del(list_t *list, unsigned int index);
 void list_cat(list_t *list, list_t *source);
+void *list_pop(list_t *list);
 
 #endif
