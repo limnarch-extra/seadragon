@@ -47,7 +47,6 @@ static const char src[] =
 	1 drop 1 drop   \
 end";
 
-
 TEST(lexer)
 {
 	seadragon_lexer_t lexer;
@@ -86,26 +85,32 @@ TEST(lexer)
 TEST(parser) {
 	seadragon_lexer_t lexer;
 	PRECONDITION(seadragon_lexer_init(&lexer, "<src>", src, sizeof(src) - 1));
+
 	seadragon_ast_t ast;
 	ASSERT(seadragon_parse(&ast, &lexer));
 	ASSERT_EQ_INT(ast.functions->length, 1);
+	
 	seadragon_function_t *function = ast.functions->items[0];
 	ASSERT(function);
+	
 	char *name = function->outputs->items[0];
 	ASSERT_EQ_STR(name, "ret");
-	ASSERT_EQ_UINT(function->u.instructions->length, 3);
-	seadragon_instruction_t *instruction = function->u.instructions->items[0];
-	ASSERT(instruction);
-	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_PUSH);
-	ASSERT(instruction->argument);
-	ASSERT_EQ_UINT(instruction->argument->type, VALUE_TYPE_LITERAL);
-	ASSERT_EQ_UINT(instruction->argument->u.literal, 0);
-	instruction = function->u.instructions->items[1];
-	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_PUSH);
-	ASSERT_EQ_UINT(instruction->argument->type, VALUE_TYPE_IDENTIFIER);
-	ASSERT_EQ_STR(instruction->argument->u.identifier, "ret");
-	instruction = function->u.instructions->items[2];
-	ASSERT_EQ_UINT(instruction->type, INSTRUCTION_TYPE_SLONG);
+
+	ASSERT_EQ_UINT(function->u.instructions->length, 21);
+	static seadragon_instruction_type_t types[21] = {
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_SINT,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_GINT, INSTRUCTION_TYPE_SUB,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_SBYTE,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_GBYTE,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_SLONG,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_GLONG, INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_SLONG,
+		INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_DROP, INSTRUCTION_TYPE_PUSH, INSTRUCTION_TYPE_DROP, 
+	};
+	for (unsigned int i = 0; i < 21; i += 1) {
+		seadragon_instruction_t *inst = function->u.instructions->items[i];
+		ASSERT_EQ_UINT(types[i], inst->type);
+	}
+
 }
 
 TEST(sema) {
@@ -123,9 +128,14 @@ TEST(sema) {
 	ASSERT_EQ_STR(name, "ret");
 	seadragon_instruction_node_t tree = function->u.root;
 	ASSERT_EQ_UINT(tree.op, OPERATION_SLONG);
-	ASSERT_EQ_PTR(tree.right, NULL);
-	ASSERT_EQ_PTR(tree.left, NULL);
-
+	ASSERT(tree.right);
+	ASSERT(tree.left);
+	ASSERT_EQ_INT(tree.left->type, LEAF_VALUE);
+	ASSERT_EQ_INT(tree.right->type, LEAF_VALUE);
+	ASSERT_EQ_UINT(tree.left->u.value->type, VALUE_TYPE_IDENTIFIER);
+	ASSERT_EQ_STR(tree.left->u.value->u.identifier, "ret");
+	ASSERT_EQ_UINT(tree.right->u.value->type, VALUE_TYPE_LITERAL);
+	ASSERT_EQ_UINT(tree.right->u.value->u.literal, 0);
 }
 
 int main()

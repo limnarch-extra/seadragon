@@ -41,11 +41,15 @@ void list_add(list_t *list, void *item) {
 	list->length += 1;
 }
 
-void *list_pop(list_t *list) {
+void *list_last(list_t *list) {
 	if (list->length == 0) {
 		return NULL;
 	}
-	void *val = list->items[list->length - 1];
+	return list->items[list->length - 1];
+}
+
+void *list_pop(list_t *list) {
+	void *val = list_last(list);
 	list->length -= 1;
 	return val;
 }

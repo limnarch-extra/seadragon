@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <setjmp.h>
 
+#define ERRORF(msg, ...) do { fprintf(stderr, "%s:%d: error: Parser: " msg "\n", __FILE__, __LINE__, __VA_ARGS__); longjmp(env, 1); } while(0);
 #define ERROR(msg) do { fprintf(stderr, "%s:%d: error: Parser: %s\n", __FILE__, __LINE__, msg); longjmp(env, 1); } while(0);
 
 seadragon_ast_t *seadragon_parse(seadragon_ast_t *ast, seadragon_lexer_t *lexer) {
@@ -82,9 +83,9 @@ seadragon_ast_t *seadragon_parse(seadragon_ast_t *ast, seadragon_lexer_t *lexer)
 						token = tokens->items[i];
 						i += 1;
 					}
+					token = tokens->items[i];
+					i += 1;
 					while (token->kind != SEADRAGON_TK_END) {
-						token = tokens->items[i];
-						i += 1;
 						if (token->kind == SEADRAGON_TK_AUTO) {
 							token = tokens->items[i];
 							i += 1;
@@ -92,6 +93,7 @@ seadragon_ast_t *seadragon_parse(seadragon_ast_t *ast, seadragon_lexer_t *lexer)
 								ERROR("Expected identifier after 'auto'");
 							}
 							list_add(function->autos, seadragon_token_read(*token));
+
 							token = tokens->items[i];
 							i += 1;
 							continue;
@@ -118,8 +120,29 @@ seadragon_ast_t *seadragon_parse(seadragon_ast_t *ast, seadragon_lexer_t *lexer)
 						case SEADRAGON_TK_SLONG:
 							instruction->type = INSTRUCTION_TYPE_SLONG;
 							break;
+						case SEADRAGON_TK_GLONG:
+							instruction->type = INSTRUCTION_TYPE_GLONG;
+							break;
+						case SEADRAGON_TK_SINT:
+							instruction->type = INSTRUCTION_TYPE_SINT;
+							break;
+						case SEADRAGON_TK_GINT:
+							instruction->type = INSTRUCTION_TYPE_GINT;
+							break;
+						case SEADRAGON_TK_SBYTE:
+							instruction->type = INSTRUCTION_TYPE_SBYTE;
+							break;
+						case SEADRAGON_TK_GBYTE:
+							instruction->type = INSTRUCTION_TYPE_GBYTE;
+							break;
+						case SEADRAGON_TK_DROP:
+							instruction->type = INSTRUCTION_TYPE_DROP;
+							break;
+						case SEADRAGON_TK_SUB:
+							instruction->type = INSTRUCTION_TYPE_SUB;
+							break;
 						default:
-							ERROR("TODO: function instructions");
+							ERRORF("TODO: function instruction '%s'", seadragon_token_kind_tostr_DBG(token->kind));
 						}
 						list_add(function->u.instructions, instruction);
 						token = tokens->items[i];

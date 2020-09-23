@@ -24,12 +24,21 @@ typedef struct {
 	} u;
 } seadragon_value_t;
 
+typedef enum {
+	INSTRUCTION_TYPE_PUSH,
+	INSTRUCTION_TYPE_GLONG,
+	INSTRUCTION_TYPE_GINT,
+	INSTRUCTION_TYPE_GBYTE,
+	INSTRUCTION_TYPE_SLONG,
+	INSTRUCTION_TYPE_SINT,
+	INSTRUCTION_TYPE_SBYTE,
+	INSTRUCTION_TYPE_DROP,
+	INSTRUCTION_TYPE_SUB,
+	INSTRUCTION_TYPE_RETURN,
+} seadragon_instruction_type_t;
+
 typedef struct {
-	enum {
-		INSTRUCTION_TYPE_PUSH,
-		INSTRUCTION_TYPE_SLONG,
-		INSTRUCTION_TYPE_RETURN,
-	} type;
+	seadragon_instruction_type_t type;
 	seadragon_value_t *argument;
 } seadragon_instruction_t;
 
@@ -42,6 +51,11 @@ typedef struct seadragon_instruction_leaf seadragon_instruction_leaf_t;
 
 typedef struct {
 	enum {
+		/// For internal use only, should never reach codegen.
+		/// in sema, when a NONE node is encountered, it is overwritten directly with
+		/// an operation.
+		OPERATION_NONE,
+		/// Stores the RHS value to the LHS.
 		OPERATION_SLONG,
 	} op;
 	seadragon_instruction_leaf_t *left, *right;
@@ -54,7 +68,7 @@ struct seadragon_instruction_leaf {
 	} type;
 	union {
 		seadragon_instruction_node_t node;
-		seadragon_value_t value;
+		seadragon_value_t *value;
 	} u;
 };
 
