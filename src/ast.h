@@ -20,7 +20,7 @@ typedef struct {
 	} type;
 	union {
 		uint32_t literal;
-		const char *identifier;
+		char *identifier;
 	} u;
 } seadragon_value_t;
 
@@ -57,6 +57,7 @@ typedef struct {
 		OPERATION_NONE,
 		/// Stores the RHS value to the LHS.
 		OPERATION_SLONG,
+		OPERATION_RETURN,
 	} op;
 	seadragon_instruction_leaf_t *left, *right;
 } seadragon_instruction_node_t;
@@ -65,10 +66,13 @@ struct seadragon_instruction_leaf {
 	enum {
 		LEAF_NODE,
 		LEAF_VALUE,
+		LEAF_CODEGENED,
 	} type;
 	union {
 		seadragon_instruction_node_t node;
 		seadragon_value_t *value;
+		// The backend-specific register in which this leaf is stored
+		void *mcval;
 	} u;
 };
 

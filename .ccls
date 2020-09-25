@@ -1,4 +1,5 @@
 /usr/lib/llvm/10/bin/clang
+-D_POSIX_C_SOURCE=200809L
 -std=c11
 -Ilib
 -Isrc

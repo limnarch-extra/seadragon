@@ -147,9 +147,9 @@ class Executable(Target):
 
 with SourceLibrary(PROJECT_NAME) as ProjectLibrary:
     # For now, we'll add all headers in src/ recursively
-    ProjectLibrary.add_headers_glob('src/**.h')
+    ProjectLibrary.add_headers_glob('src/**/*.h')
     # For now, we'll add all .c sources in src/ recursively
-    ProjectLibrary.add_sources_glob('src/**.c')
+    ProjectLibrary.add_sources_glob('src/**/*.c')
 
 with Executable('test') as Test:
     Test.add_sources_glob('test/main.c')

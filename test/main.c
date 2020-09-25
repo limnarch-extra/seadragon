@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include "parser.h"
 #include "sema.h"
+#include "codegen.h"
+#include "backends/limn2k.h"
 
 #define TEST_USE_COLOR 0
 
@@ -138,10 +140,30 @@ TEST(sema) {
 	ASSERT_EQ_UINT(tree.right->u.value->u.literal, 0);
 }
 
+TEST(codegen) {
+	static const char src[] = "fn main {-- ret} 0 ret ! end ";
+	seadragon_lexer_t lexer;
+	PRECONDITION(seadragon_lexer_init(&lexer, "<src>", src, sizeof(src) - 1));
+	seadragon_ast_t ast;
+	PRECONDITION(seadragon_parse(&ast, &lexer));
+	PRECONDITION(seadragon_sema(&ast));
+	char buf[1024*1024];
+	FILE *outfile = fmemopen(buf, 1024 * 1024, "w+");
+	seadragon_backend_t *(*backend)(jmp_buf*,FILE*) = seadragon_backend_limn2k;
+	bool codegen_success = seadragon_cg(&ast, outfile, backend);
+	long len = ftell(outfile);
+	ASSERT(len >= 0);
+	fclose(outfile);
+	buf[len] = 0;
+	printf("Generated code: \n========\n%s========\n", buf);
+	ASSERT(codegen_success && "delayed assertion so partially generated code prints");
+}
+
 int main()
 {
 	TEST_EXEC(lexer);
 	TEST_EXEC(parser);
 	TEST_EXEC(sema);
+	TEST_EXEC(codegen);
 	return TEST_REPORT();
 }
